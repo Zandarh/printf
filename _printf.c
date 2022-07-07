@@ -1,36 +1,51 @@
 #include "main.h"
 
 /**
- * _printf - prints formated text
- *
- * @format: text to be formated
- * Return: Lenght of the text
+ * _printf - produces output according to output
+ * @format: argument
+ * Return: res
  */
 
 int _printf(const char *format, ...)
 {
-	va_list args;
-	int size = 0;
-	print_fx fx[] = {
-		{"c", print_c},
-		{"s", print_s},
-		{"i", print_i},
-		{"d", print_i},
-		{"u", print_i},
-		{"b", print_b},
-		{"o", print_o},
-		{"x", print_x},
-		{"X", print_X},
-		{"r", print_r},
-		{"R", print_R},
-		{NULL, NULL}
-	};
-	va_start(args, format);
-	if (format == NULL || (format[0] == '%' && format[1] == '\0'))
-	{
+	/*declare variable and initialize struct to be used*/
+	int i, sum = 0, count = 0;
+	va_list arg;
+	/* initialize arg with format*/
+	va_start(arg, format);
+	if (format == NULL)
 		return (-1);
+	for (i = 0; format[i] != '\0'; i++)
+	{
+		if (format[i] != '%')
+		{/*it is a normal character so print*/
+			_putchar(format[i]);
+			sum++;
+			continue;
+		}
+		if (format[i + 1] == '%')
+		{/*means it's %% so it should print %*/
+			_putchar('%');
+			sum++;
+			i++;/*forgot to do this*/
+			continue;
+		}
+		while (format[i + 1] == ' ')
+			i++;
+		if (format[i + 1] == '\0')
+			return (-1);
+
+		count = count_spec(format[i + 1], arg);/*the count of arg*/
+		if (count == -1 || count != 0)
+			i++;
+		if (count > 0)/*count_spec used and the specifier is correct*/
+			sum += count;
+		if (count == 0)/*invalid specifier, treat as normal character*/
+		{
+			_putchar('%');
+			sum++;
+		}
 	}
-	size = aux_func(format, args, fx);
-	va_end(args);
-	return (size);
+	va_end(arg);
+	return (sum);
 }

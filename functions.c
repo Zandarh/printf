@@ -1,140 +1,114 @@
 #include "main.h"
 
 /**
- * print_x - unsigned int argument is converted to hexa in lowercase
- * @args: pointer to arguments
- * Return: number of digits printed
+ * _strlen - calculate the length of a string
+ * @c: string passed as argument
+ * Return: return length of string
  */
 
-int print_x(va_list args)
+int _strlen(char *c)
 {
-	unsigned int n, buff[1024];
-	int i = 0, len = 0;
-	char p;
+	int i;
 
-	n = va_arg(args, int);
-	if (n < 1)
+	for (i = 0; c[i] != '\0'; i++)
 	{
-		write(1, "0", 1);
-		return (1);
+		continue;
 	}
-	while (n > 0)
+	return (i);
+}
+
+/**
+ * print_hexa - converts from base 10 to 16
+ * @num: unsigned int
+ * @form: lowercase or uppercase
+ * Return: num of characters
+ */
+
+int print_hexa(unsigned int num, int form)
+{
+	/*declare variables to be used in loop and hold arg*/
+	long int i, j, k, remainder;
+	unsigned int val;
+	char *ptr;
+
+	val = num;
+
+	if (num == 0)
+		return (_putchar('0'));
+	/*getting length of output*/
+	i = 0;
+	while (val > 0)
 	{
-		buff[len] = n % 16;
-		n /= 16;
-		if (buff[len] > 9)
-			buff[i] = buff[len] + 39;
+		val /= 16;/* start getting length after division*/
+		i++;
+	}
+	/*mallocing space to keep remainder*/
+	ptr = malloc(sizeof(char) * i);
+	if (ptr == NULL)
+		return (-1);
+	/*putting each character in malloced space*/
+	for (j = 0; j < i; j++)
+	{
+		remainder = num % 16;
+		if (remainder < 10)
+			ptr[j] = remainder + 48;
 		else
-			buff[i] = buff[len];
-		i++;
-		len++;
+			ptr[j] = remainder - 10 + form;
+		num /= 16;
 	}
-	for (i = len - 1; i >= 0; i--)
-	{
-		p = buff[i] + '0';
-		write(1, &p, 1);
-	}
-	return (len);
+	/*printing malloc in reverse*/
+	for (k = j - 1; k >= 0; k--)/*minus 1 from j cause j = i*/
+		_putchar(ptr[k]);
+	free(ptr);
+	return (i);
 }
 
 /**
- * print_X - unsigned int argument is converted to hexa in uppercase
- * @args: pointer to arguments
- * Return: number of digits printed
+ * _puts - prints string to the stdout
+ * @str: the string to be displayed
+ * Return: returns nothing
  */
 
-int print_X(va_list args)
+void _puts(char *str)
 {
-	unsigned int n, buff[1024];
-	int i = 0, len = 0;
-	char p;
-
-	n = va_arg(args, int);
-	if (n < 1)
-	{
-		write(1, "0", 1);
-		return (1);
-	}
-	while (n > 0)
-	{
-		buff[len] = n % 16;
-		n /= 16;
-		if (buff[len] > 9)
-			buff[i] = buff[len] + 7;
-		else
-			buff[i] = buff[len];
-		i++;
-		len++;
-	}
-	for (i = len - 1; i >= 0; i--)
-	{
-		p = buff[i] + '0';
-		write(1, &p, 1);
-	}
-	return (len);
+	int len;
+	/*loop through string and print each characters*/
+	for (len = 0; str[len] != '\0'; len++)
+		_putchar(str[len]);
 }
 
 /**
- * print_r - Prints a string in reverse.
- * @args: Variable string.
- *
- * Return: lenght of the string.
+ * rot13 - encodes a string using rot13
+ * @s: input string.
+ * Return: the pointer to dest.
  */
-int print_r(va_list args)
+
+char *rot13(char *s)
 {
-	char *p, s;
-	int i = 0, len = 0;
+	/*declare variables to be used in loops and also to hold characters*/
+	int count, i, len = _strlen(s);
+	char *alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	char *rot13 = "nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM";
+	/*malloc space to keep changed characters*/
+	char *ptr = malloc(sizeof(char) * (len + 1));
 
-	p = va_arg(args, char *);
-	while (p[i] != '\0')
+	if (ptr == NULL)
+		return (0);
+	for (count = 0; *(s + count) != '\0'; count++)
 	{
-		len++;
-		i++;
-	}
-	for (i = len - 1; i >= 0; i--)
-	{
-		s = p[i];
-		write(1, &s, 1);
-	}
-	return (len);
-}
-
-/**
- * print_R - print a string to rot13 encode.
- * @args: Pointer to string.
- *
- * Return: lenght of the string encode in rot13
- */
-int print_R(va_list args)
-{
-	int i, j, len = 0;
-	char alpha[] = {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"};
-	char ch[] = {"NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm"};
-	char *p, *m;
-
-	p = va_arg(args, char *);
-	for (i = 0; p[i] != '\0'; i++)
-		len++;
-	m = malloc(sizeof(char) * (len + 1));
-	if (!m)
-		return ('\0');
-	for (i = 0; i <= len; i++)
-	{
-		m[i] = p[i];
-	}
-	for (i = 0 ; m[i] != '\0' ; i++)
-	{
-		for (j = 0 ; alpha[j] != '\0' ; j++)
+		for (i = 0; i < 52; i++)
 		{
-			if (m[i] == alpha[j])
+			if (*(s + count) == alphabet[i])
 			{
-				m[i] = ch[j];
+				*(ptr + count) = rot13[i];
+				/*sets encrypted character to malloc space*/
 				break;
 			}
+			*(ptr + count) = *(s + count);
+			/*still adds character if the above stat.  is not true*/
 		}
 	}
-	for (i = 0; m[i] != '\0'; i++)
-		write(1, &m[i], 1);
-	free(m);
-	return (len);
+	*(ptr + count) = '\0';
+
+	return (ptr);
 }
